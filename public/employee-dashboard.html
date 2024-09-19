@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Employee Dashboard</title>
+  <link rel="stylesheet" href="/styles/admin.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="logo">
+      <img src="https://logodix.com/logo/43935.png" alt="Nokia Logo">
+    </div>
+    <h1 style="margin-left: 15%;">Personal Dashboard</h1>
+    <div class="icons">
+      <span class="icon bell">&#x1F514;</span>
+      <span class="icon settings">&#9881;</span>
+    </div>
+    <!-- Burger Menu -->
+<div class="burger-menu">
+    <span class="menu-icon" onclick="toggleMenu()">&#9776;</span>
+    <ul class="dropdown-menu" id="dropdownMenu">
+      <li><a href="#">Dashboard</a></li>
+      <li><a href="Shift-scheduling-employee.html">Shift Scheduling</a></li>
+      <li><a href="Attendence.html">Real-Time Attendance</a></li>
+      <li><a href="#">Performance Metrics</a></li>
+      <li><a href="#">Workforce Allocation</a></li>
+      <li><a href="#">Reports</a></li>
+    </ul>
+  </div>
+  
+  </header>
+
+  <!-- Personal Info Section -->
+  <section class="personal-info">
+    <p><strong>Name:</strong>Employee</p>
+    <p><strong>Position:</strong> Production Employee</p>
+    <p><strong>Year Of Experience:</strong> 3 Years</p>
+  </section>
+
+  <!-- Main Dashboard -->
+  <main class="dashboard">
+    <!-- Attendance Placeholder -->
+    <div class="card attendance">
+      <h2>Attendance</h2>
+      <div class="circular-progress">
+        <div class="value" style="color: white;">90%</div>
+      </div>
+      <p>Present: 20 days | Absent: 5 days</p>
+    </div>
+
+    <!-- Performance Graph Placeholder -->
+    <div class="card performance">
+      <h2>Overall Performance</h2>
+      <canvas id="performanceChart"></canvas>
+    </div>
+
+    <!-- Projects Section -->
+    <div class="card projects">
+      <h2>Projects</h2>
+      <div class="project">
+        <p>Client: H&M</p>
+        <div class="progress-bar" style="width: 80%;"></div>
+        <p>Amount: $45,000</p>
+      </div>
+      <div class="project">
+        <p>Client: Aditya Birla</p>
+        <div class="progress-bar" style="width: 60%;"></div>
+        <p>Amount: $25,000</p>
+      </div>
+      <div class="project">
+        <p>Client: P&G</p>
+        <div class="progress-bar" style="width: 90%;"></div>
+        <p>Amount: $60,000</p>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script >// script.js
+
+const ctx = document.getElementById('performanceChart').getContext('2d');
+const performanceChart = new Chart(ctx, {
+  type: 'bar', // Change to 'bar' for a bar graph
+  data: {
+    labels: ['January', 'February', 'March', 'April', 'May', 'June'],
+    datasets: [{
+      label: 'Performance',
+      data: [70, 60, 85, 79, 55, 99],
+      backgroundColor: 'rgba(0, 86, 162, 0.2)',
+      borderColor: '#0056A2',
+      borderWidth: 2,
+      fill: true
+    }]
+  },
+  options: {
+    scales: {
+      y: {
+        beginAtZero: true
+      }
+    }
+  }
+});
+
+    function toggleMenu() {
+  var menu = document.getElementById('dropdownMenu');
+  if (menu.style.display === 'block') {
+    menu.style.display = 'none';
+  } else {
+    menu.style.display = 'block';
+  }
+}
+
+    </script>
+</body>
+</html>

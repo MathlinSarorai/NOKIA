@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Worker Shift Scheduling</title>
+  <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />
+  <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
+  <style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #124191;
+    color: white;
+    padding: 10px 20px;
+  }
+  
+  .header .logo img {
+    height: 40px;
+  }
+  
+  .header h1 {
+    font-size: 1.5rem;
+  }
+  
+  .header .icons {
+    font-size: 1.5rem;
+  }
+  
+  .header .icon {
+    margin-left: 10px;
+    cursor: pointer;
+  }
+
+    /* Dropdown and Button Section */
+    .dropdowns {
+      display: flex;
+      justify-content: space-between;
+      padding: 20px 30px;
+    }
+
+    .dropdowns .dropdown {
+      display: flex;
+      flex-direction: column;
+      margin-right: 20px;
+    }
+
+    .dropdown label {
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    .dropdown select, .dropdown input {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: #fff;
+      width: 200px;
+    }
+
+    .request-btn {
+      align-self: center;
+      padding: 10px 20px;
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 1rem;
+    }
+
+    /* Shift Data Table */
+    .shift-table {
+      margin: 20px 30px;
+      border-collapse: collapse;
+      width: 90%;
+    }
+
+    .shift-table th, .shift-table td {
+      padding: 15px;
+      border: 1px solid #ccc;
+      text-align: center;
+    }
+
+    .shift-table th {
+      background-color: #124191;
+      color: white;
+    }
+
+    .action-btn {
+      padding: 5px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .accept-btn {
+      background-color: #28a745;
+      color: white;
+      border: none;
+    }
+
+    .reject-btn {
+      background-color: #dc3545;
+      color: white;
+      border: none;
+    }
+
+    /* FullCalendar Styling */
+    #calendar {
+      max-width: 90%;
+      margin: 30px auto;
+      padding: 20px;
+      background-color: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Burger Menu Styling */
+ .burger-menu {
+    position: relative;
+  }
+  
+  .menu-icon {
+    font-size: 30px;
+    cursor: pointer;
+    color: white;
+    margin-right: 20px;
+  }
+  
+  .dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 50px;
+    background-color: #0056A2;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.3);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    width: 200px;
+    z-index: 1000;
+  }
+  
+  .dropdown-menu li {
+    padding: 12px 16px;
+    text-align: left;
+  }
+  
+  .dropdown-menu li a {
+    color: white;
+    text-decoration: none;
+    display: block;
+  }
+  
+  .dropdown-menu li a:hover {
+    background-color: #004080;
+  }
+  
+    
+
+  </style>
+</head>
+<body>
+  <!-- Header Section -->
+  <header class="header">
+    <div class="logo">
+      <img src="https://logodix.com/logo/43935.png" alt="Nokia Logo">
+    </div>
+    <h1 style="margin-left: 15%;">Personal Dashboard</h1>
+    <div class="icons">
+      <span class="icon bell">&#x1F514;</span>
+      <span class="icon settings">&#9881;</span>
+    </div>
+    <!-- Burger Menu -->
+<div class="burger-menu">
+    <span class="menu-icon" onclick="toggleMenu()">&#9776;</span>
+    <ul class="dropdown-menu" id="dropdownMenu">
+      <li><a href="employee-dashboard.html">Dashboard</a></li>
+      <li><a href="#">Shift Scheduling</a></li>
+      <li><a href="Attendence.html">Real-Time Attendance</a></li>
+      <li><a href="#">Performance Metrics</a></li>
+      <li><a href="#">Workforce Allocation</a></li>
+      <li><a href="#">Reports</a></li>
+    </ul>
+  </div>
+  
+  </header>
+
+  <!-- Dropdowns and Request Button -->
+  <div class="dropdowns">
+    <div class="dropdown">
+      <label for="date">Date</label>
+      <input type="date" id="date">
+    </div>
+    <div class="dropdown">
+      <label for="shift-type">Shift Type</label>
+      <select id="shift-type">
+        <option value="morning">Morning</option>
+        <option value="evening">Evening</option>
+        <option value="night">Night</option>
+      </select>
+    </div>
+    <div class="dropdown">
+      <label for="department">Department</label>
+      <select id="department">
+        <option value="assembly">Assembly</option>
+        <option value="packaging">Packaging</option>
+        <option value="designing">Designing</option>
+      </select>
+    </div>
+    <button class="request-btn">Request</button>
+  </div>
+
+  <!-- Shift Data Table -->
+  <table class="shift-table">
+    <thead>
+      <tr>
+        <th>Worker Name</th>
+        <th>Date</th>
+        <th>Shift Type</th>
+        <th>Department</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>John Doe</td>
+        <td>dd-mm-yy</td>
+        <td>Morning</td>
+        <td>Packaging</td>
+        <td>
+          <button class="action-btn accept-btn">Accept</button>
+          <button class="action-btn reject-btn">Reject</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Weekly Shift Calendar -->
+  <div id='calendar'></div>
+
+  <!-- FullCalendar JavaScript -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      var calendarEl = document.getElementById('calendar');
+
+      var calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'timeGridWeek',
+        headerToolbar: {
+          left: 'prev,next today',
+          center: 'title',
+          right: 'dayGridMonth,timeGridWeek,timeGridDay'
+        },
+        editable: true,
+        selectable: true,
+        events: [ // Sample events for the calendar
+          {
+            title: 'Morning Shift - Assembly',
+            start: '2024-09-23T09:00:00',
+            end: '2024-09-23T13:00:00',
+            color: '#28a745'
+          },
+          {
+            title: 'Evening Shift - Packaging',
+            start: '2024-09-24T14:00:00',
+            end: '2024-09-24T18:00:00',
+            color: '#e74c3c'
+          }
+        ],
+        select: function(info) {
+          alert('Selected: ' + info.startStr + ' to ' + info.endStr);
+          calendar.unselect();
+        },
+        eventClick: function(info) {
+          alert('Event: ' + info.event.title);
+        }
+      });
+
+      calendar.render();
+    });
+
+    function toggleMenu() {
+  var menu = document.getElementById('dropdownMenu');
+  if (menu.style.display === 'block') {
+    menu.style.display = 'none';
+  } else {
+    menu.style.display = 'block';
+  }
+}
+  </script>
+</body>
+</html>

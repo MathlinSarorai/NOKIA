@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shift Scheduling</title>
+  <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />
+  <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
+<style>
+    /* General Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+  color: #333;
+}
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #124191;
+    color: white;
+    padding: 10px 20px;
+  }
+  
+  .header .logo img {
+    height: 40px;
+  }
+  
+  .header h1 {
+    font-size: 1.5rem;
+  }
+  
+  .header .icons {
+    font-size: 1.5rem;
+  }
+  
+  .header .icon {
+    margin-left: 10px;
+    cursor: pointer;
+  }
+/* Burger Menu Styling */
+.burger-menu {
+    position: relative;
+  }
+  
+  .menu-icon {
+    font-size: 30px;
+    cursor: pointer;
+    color: white;
+    margin-right: 20px;
+  }
+  
+  .dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 50px;
+    background-color: #0056A2;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.3);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    width: 200px;
+    z-index: 1000;
+  }
+  
+  .dropdown-menu li {
+    padding: 12px 16px;
+    text-align: left;
+  }
+  
+  .dropdown-menu li a {
+    color: white;
+    text-decoration: none;
+    display: block;
+  }
+  
+  .dropdown-menu li a:hover {
+    background-color: #004080;
+  }
+  
+/* Shift Scheduling */
+.shift-scheduling {
+  padding: 20px;
+}
+
+.shift-scheduling h2 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+
+.filters {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 20px;
+}
+
+.filter {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+.shift-calendar {
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+/* Shift Table */
+.shift-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.shift-table th, .shift-table td {
+  padding: 15px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+.shift-table th {
+  background-color: #f4f4f4;
+}
+
+.btn {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.btn.assign {
+  background-color: #28a745;
+  color: white;
+}
+
+.btn.edit {
+  background-color: #ffc107;
+  color: white;
+}
+
+.btn.swap {
+  background-color: #007bff;
+  color: white;
+}
+
+.btn.auto-schedule {
+  background-color: #dc3545;
+  color: white;
+  width: 15%;
+}
+
+/* Shift Notifications */
+.shift-notifications {
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+#calendar {
+  max-width: 100%;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+</style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="logo">
+        <img src="https://logodix.com/logo/43935.png" alt="Nokia Logo">
+      </div>
+      <h1 style="margin-left: 15%;">Manager Dashboard</h1>
+      <div class="icons">
+        <span class="icon bell">&#x1F514;</span>
+        <span class="icon settings">&#9881;</span>
+      </div>
+    <!-- Burger Menu -->
+<div class="burger-menu">
+    <span class="menu-icon" onclick="toggleMenu()">&#9776;</span>
+    <ul class="dropdown-menu" id="dropdownMenu">
+      <li><a href="manager-dashboard.html">Dashboard</a></li>
+      <li><a href="#">Shift Scheduling</a></li>
+      <li><a href="Geo-fencing.html">Real-Time Attendance</a></li>
+      <li><a href="performance-dashboard-manager.html">Performance Metrics</a></li>
+      <li><a href="#">Workforce Allocation</a></li>
+      <li><a href="#">Reports</a></li>
+    </ul>
+  </div>
+  
+  </header>
+
+  
+  <!-- Shift Scheduling Section -->
+  <section class="shift-scheduling">
+    <h2>Shift Scheduling</h2>
+    <div class="filters">
+        <label style="font-size: large; margin-top: 1%;">Date:</label>
+      <input type="date" class="filter date-picker" id="date-picker">
+      <label style="font-size: large; margin-top: 1%;">Shift:</label>
+      <select class="filter shift-type">
+        <option value="morning">Morning</option>
+        <option value="afternoon">Afternoon</option>
+        <option value="night">Night</option>
+      </select>
+      <label style="font-size: large; margin-top: 1%;">Department:</label>
+      <select class="filter department">
+        <option value="assembly">Assembly</option>
+        <option value="quality-control">Quality Control</option>
+        <option value="logistics">Logistics</option>
+      </select>
+    </div>
+    
+    <!-- Weekly Shift Calendar -->
+    <div class="shift-calendar">
+        <div id='calendar'></div>
+    </div>
+    
+    <!-- Shift Scheduling Table -->
+    <table class="shift-table">
+      <thead>
+        <tr>
+          <th>Worker Name</th>
+          <th>Shift Type</th>
+          <th>Availability</th>
+          <th>Skills Level</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>John Doe</td>
+          <td>Morning</td>
+          <td>Available</td>
+          <td>Advanced</td>
+          <td>
+            <button class="btn assign">Assign</button>
+            <button class="btn edit">Edit</button>
+            <button class="btn swap">Swap</button>
+          </td>
+        </tr>
+        <!-- Additional rows as needed -->
+      </tbody>
+    </table>
+    <button class="btn auto-schedule">Auto Schedule</button>
+    
+    <!-- Shift Notifications -->
+    <div class="shift-notifications">
+      <p>No pending approvals at the moment</p>
+    </div>
+  </section>
+  <script>
+    // JavaScript for interactivity
+
+document.addEventListener("DOMContentLoaded", () => {
+  // Toggle dropdown menu
+  const menuIcon = document.querySelector('.menu-icon');
+  const dropdownMenu = document.querySelector('.dropdown-menu');
+
+  menuIcon.addEventListener('click', () => {
+    dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
+  });
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', (event) => {
+    if (!menuIcon.contains(event.target) && !dropdownMenu.contains(event.target)) {
+      dropdownMenu.style.display = 'none';
+    }
+  });
+
+  // Date Picker Interactivity (can use a library like flatpickr for better UI)
+  const datePicker = document.getElementById('date-picker');
+  datePicker.addEventListener('focus', (event) => {
+    event.target.type = 'date';  // Change input type to 'date' on focus
+  });
+});
+document.addEventListener('DOMContentLoaded', function() {
+  var calendarEl = document.getElementById('calendar');
+
+  var calendar = new FullCalendar.Calendar(calendarEl, {
+    initialView: 'timeGridWeek', // Week view as shown in your design
+    headerToolbar: {
+      left: 'prev,next today',
+      center: 'title',
+      right: 'dayGridMonth,timeGridWeek,timeGridDay'
+    },
+    editable: true, // Allow dragging and resizing of events
+    selectable: true, // Allow selection of time slots
+    selectHelper: true,
+    events: [ // Sample events
+      {
+        title: 'Internal Meetings',
+        start: '2024-09-18T08:00:00',
+        end: '2024-09-18T09:00:00',
+        color: '#6C48C5' // Color as per your screenshot
+      },
+      {
+        title: 'Client Call',
+        start: '2024-09-19T10:00:00',
+        end: '2024-09-19T11:00:00',
+        color: '#0D7C66'
+      }
+    ],
+    select: function(info) {
+      // Example interaction: alert time slot selected
+      alert('Selected: ' + info.startStr + ' to ' + info.endStr);
+      calendar.unselect(); // Deselect after action
+    },
+    eventClick: function(info) {
+      // Interaction when clicking an event
+      alert('Event: ' + info.event.title);
+      // You can add more actions like editing or deleting the event
+    }
+  });
+
+  calendar.render();
+});
+
+  </script>
+</body>
+</html>

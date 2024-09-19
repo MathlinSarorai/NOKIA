@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="/styles/index.css">
+</head>
+<body style="background-color: #124191">
+    <div class="login-container">
+        <div class="left-section">
+          <img src="https://www.pngmart.com/files/22/Nokia-PNG.png" style="width: 100%; height: 50%;" alt="Nokia Logo" class="logo">
+            <h1>Welcome to Nokia Workforce Management Patrol!</h1>
+            <button class="skip-button">Skip the lag?</button>
+        </div>
+        
+        <div class="right-section">
+            <div class="login-box">
+                <h2>Login</h2>
+                <p>Glad you're back!</p>
+                <form id="loginForm">
+                    <!-- Email field replacing username -->
+                    <input type="email" name="email" id="email" placeholder="Email" required>
+                    <input type="password" name="password" id="password" placeholder="Password" required>
+                    <div class="remember-me">
+                        <input type="checkbox" name="remember"> Remember me
+                    </div>
+                    <input type="submit" value="Login" class="login-btn">
+                </form>
+                <p style="margin-top: 10px;"><a href="#">Forgot password?</a></p>
+            </div>
+        </div>
+    </div>
+    <div id="message"></div>
+
+    <script>
+        document.getElementById("loginForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            const email = document.getElementById("email").value.trim();
+            const password = document.getElementById("password").value;
+            if (!email.includes('@')) {
+        document.getElementById("message").innerHTML = "Invalid email format.";
+        return;
+    }
+            
+            const domain = email.split('@')[1].trim(); // e.g., "admin.nokia.io"
+            console.log(domain)
+            
+ 
+// Extract the base domain (last two segments)
+const domainParts = domain.split('.');
+console.log(domainParts)
+const baseDomain = domainParts.slice(-2).join('.').trim();  // This will be "nokia.io"
+console.log(baseDomain)
+if (baseDomain !== 'nokia.io') {
+    document.getElementById("message").innerHTML = "Email must be from nokia.io domain.";
+    return;
+}
+
+fetch('http://localhost:3000/login', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Network response was not ok: ${response.statusText}`);
+        }
+        return response.json(); // Ensure response is returned as JSON
+    })
+    .then(data => {
+        if (data && typeof data === 'object') {
+            console.log(data); // Make sure you are receiving an object from the server
+
+            if (data.success) {
+                // Redirect based on role
+                if (data.role === 'employee') {
+                    window.location.href = 'employee-dashboard.html';
+                } else if (data.role === 'manager') {
+                    window.location.href = 'manager-dashboard.html';
+                } else {
+                    window.location.href = 'user-dashboard.html'; // Default redirection
+                }
+            } else {
+                document.getElementById("message").innerHTML = data.message || "Login failed";
+            }
+        } else {
+            throw new Error('Invalid JSON response');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error.message); // Log detailed error in the console
+        document.getElementById("message").innerHTML = "Error logging in: " + error.message;
+    });
+});
+    </script>
+</body>
+</html>
